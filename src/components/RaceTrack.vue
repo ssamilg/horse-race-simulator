@@ -23,6 +23,7 @@ const trackHeight = ref(0)
 const trackElement = ref(null)
 const raceCompleted = ref(false)
 const horsePositions = ref({}) // Store position data by horse ID
+const horseLuckFactors = ref({}) // Store luck factors for each horse
 
 // Calculate lane height based on track height and number of horses
 const laneHeight = computed(() => {
@@ -36,17 +37,27 @@ const finishLinePosition = computed(() => {
   return trackWidth.value - 20 // 20px from the right edge
 })
 
+// Generate a random luck factor between 0.7 and 1.5
+const generateLuckFactor = () => {
+  return 0.7 + Math.random() * 0.8 // Range: 0.7 to 1.5
+}
+
 // Initialize positions for all horses
 const initializePositions = () => {
   const positions = {}
+  const luckFactors = {}
+
   props.horses.forEach((horse, index) => {
     positions[horse.id] = {
       distance: 0,
       position: 0,
       laneNumber: index + 1
     }
+    luckFactors[horse.id] = generateLuckFactor()
   })
+
   horsePositions.value = positions
+  horseLuckFactors.value = luckFactors
   raceCompleted.value = false
 }
 
@@ -69,6 +80,14 @@ watch(() => raceStore.showHorseList, () => {
   // When horse list visibility changes, update dimensions with a small delay
   // to allow the DOM to update first
   setTimeout(updateTrackDimensions, 100)
+})
+
+// Watch for changes in race distance to reset track
+watch(() => props.raceDistance, () => {
+  // When race distance changes, we need to reset the track
+  initializePositions()
+  finishedHorseOrder.length = 0
+  raceCompleted.value = false
 })
 
 // Calculate lane position for a horse
@@ -120,9 +139,13 @@ const updateAllHorsePositions = () => {
 
 // Race animation variables
 let raceInterval = null
+const finishedHorseOrder = []
 
 const startRace = () => {
   if (raceInterval) return
+
+  // Reset the finished horse order when starting a new race
+  finishedHorseOrder.length = 0
 
   // Start animation loop - update every second
   raceInterval = setInterval(updateRacePositions, 1000)
@@ -138,22 +161,21 @@ const pauseRace = () => {
 const updateRacePositions = () => {
   // Calculate new positions for each horse
   let allFinished = true
-  const finishedHorses = []
 
-  // Update each horse's position based on condition
+  // Update each horse's position based on condition and luck factor
   props.horses.forEach(horse => {
     const position = horsePositions.value[horse.id]
     if (!position) return
 
     // Skip if already finished
     if (position.distance >= props.raceDistance) {
-      finishedHorses.push(horse.id)
       return
     }
 
-    // Calculate distance moved per second based on condition
-    // If condition is 100, horse moves 100m per second (completes 1200m in 12s)
-    const metersPerSecond = horse.condition
+    // Calculate distance moved per second based on condition and luck factor
+    // If condition is 100 and luck factor is 1.5, horse moves 150m per second
+    const luckFactor = horseLuckFactors.value[horse.id]
+    const metersPerSecond = horse.condition * luckFactor
 
     // Update distance
     position.distance += metersPerSecond
@@ -161,7 +183,9 @@ const updateRacePositions = () => {
     // Check if finished
     if (position.distance >= props.raceDistance) {
       position.distance = props.raceDistance
-      finishedHorses.push(horse.id)
+
+      // Record the finish order
+      finishedHorseOrder.push(horse.id)
     } else {
       allFinished = false
     }
@@ -170,13 +194,27 @@ const updateRacePositions = () => {
     updateHorsePosition(horse.id)
   })
 
-  // Update ranking positions based on current distances
-  const sortedHorseIds = Object.keys(horsePositions.value).sort((a, b) => {
-    return horsePositions.value[b].distance - horsePositions.value[a].distance
+  // Update ranking positions based on:
+  // 1. First by finish order for those who've finished
+  // 2. Then by current distance for those still racing
+
+  // First assign positions to finished horses by their finish order
+  finishedHorseOrder.forEach((id, index) => {
+    if (horsePositions.value[id]) {
+      horsePositions.value[id].position = index + 1
+    }
   })
 
-  sortedHorseIds.forEach((id, index) => {
-    horsePositions.value[id].position = index + 1
+  // Then sort unfinished horses by distance
+  const unfinishedHorseIds = Object.keys(horsePositions.value)
+    .filter(id => !finishedHorseOrder.includes(id))
+    .sort((a, b) => {
+      return horsePositions.value[b].distance - horsePositions.value[a].distance
+    })
+
+  // Assign positions to unfinished horses
+  unfinishedHorseIds.forEach((id, index) => {
+    horsePositions.value[id].position = finishedHorseOrder.length + index + 1
   })
 
   // If all horses have finished, complete the race
@@ -184,16 +222,20 @@ const updateRacePositions = () => {
     raceCompleted.value = true
     pauseRace()
 
-    // Emit race completed event with results
-    const results = props.horses
-      .map(horse => {
-        const position = horsePositions.value[horse.id]
+    // Create results with all necessary data and correct finish order
+    const results = finishedHorseOrder
+      .map((id, index) => {
+        // Find the original horse object
+        const horse = props.horses.find(h => h.id.toString() === id.toString())
+        if (!horse) return null
+
         return {
           ...horse,
-          position: position.position
+          position: index + 1, // Position is based on finish order
+          luckFactor: parseFloat(horseLuckFactors.value[id].toFixed(2))
         }
       })
-      .sort((a, b) => a.position - b.position)
+      .filter(horse => horse !== null)
 
     emit('raceCompleted', results)
   }
@@ -222,6 +264,11 @@ const emit = defineEmits(['raceCompleted'])
 // Get lap distance text
 const getLapDistanceText = () => {
   return `Race Distance: ${props.raceDistance}m`
+}
+
+// Format luck factor for display
+const formatLuckFactor = (luckFactor) => {
+  return luckFactor.toFixed(2)
 }
 </script>
 
@@ -292,12 +339,25 @@ const getLapDistanceText = () => {
         <div class="relative">
           <!-- Horse color indicator -->
           <div
-            class="absolute left-2 top-0 w-6 h-6 rounded-full border-2 border-white"
+            class="absolute left-2 top-0 w-8 h-8 rounded-full border-2 border-white"
             :class="horse.color"
           >
             <span class="absolute inset-0 flex items-center justify-center text-xs font-bold" :class="horse.textColor">
               {{ horse.id }}
             </span>
+          </div>
+
+          <!-- Luck factor indicator -->
+          <div
+            v-if="horseLuckFactors[horse.id]"
+            class="absolute left-10 top-1 text-xs px-1 py-0.5 rounded bg-white text-black font-bold"
+            :class="{
+              'bg-green-300': horseLuckFactors[horse.id] > 1.2,
+              'bg-yellow-300': horseLuckFactors[horse.id] > 0.9 && horseLuckFactors[horse.id] <= 1.2,
+              'bg-red-300': horseLuckFactors[horse.id] <= 0.9
+            }"
+          >
+            x{{ formatLuckFactor(horseLuckFactors[horse.id]) }}
           </div>
 
           <!-- Horse silhouette -->
