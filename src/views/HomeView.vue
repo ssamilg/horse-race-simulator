@@ -1,26 +1,25 @@
 <script setup>
-import { ref } from 'vue'
 import HorseList from '@/components/HorseList.vue'
 import HorseTable from '@/components/HorseTable.vue'
-import { HORSES } from '@/constants/horses'
+import RaceTrack from '@/components/RaceTrack.vue'
+import { useRaceStore } from '@/stores/raceStore'
 
-// Sample data for testing - will be replaced with actual race data
-const programHorses = ref([])
-const resultsHorses = ref([])
-const showHorseList = ref(true)
-
-// For demonstration purposes, we'll show some horses in the program
-const generateProgram = () => {
-  // Select 10 random horses for the race
-  const shuffled = [...HORSES].sort(() => 0.5 - Math.random())
-  programHorses.value = shuffled.slice(0, 10)
-
-  // Reset results when generating a new program
-  resultsHorses.value = []
-}
+const raceStore = useRaceStore()
 
 const toggleHorseList = () => {
-  showHorseList.value = !showHorseList.value
+  raceStore.toggleHorseList()
+}
+
+const generateProgram = () => {
+  raceStore.generateProgram()
+}
+
+const toggleRace = () => {
+  raceStore.toggleRacing()
+}
+
+const handleRaceCompleted = (results) => {
+  raceStore.setRaceResults(results)
 }
 </script>
 
@@ -30,7 +29,7 @@ const toggleHorseList = () => {
 
     <div class="flex flex-col md:flex-row gap-6 h-full">
       <!-- Horse List Section with Toggle -->
-      <div v-if="showHorseList" class="md:w-1/3 h-full relative">
+      <div v-if="raceStore.showHorseList" class="md:w-1/3 h-full relative">
         <button
           @click="toggleHorseList"
           class="absolute -right-3 top-4 z-10 bg-gray-800 text-white p-1 rounded-full shadow-lg hover:bg-gray-700"
@@ -56,7 +55,7 @@ const toggleHorseList = () => {
         </button>
       </div>
 
-      <div class="md:w-2/3 bg-gray-100 rounded-lg shadow p-4" :class="{'md:w-2/3': !showHorseList}">
+      <div class="md:w-2/3 bg-gray-100 rounded-lg shadow p-4" :class="{'md:w-2/3': !raceStore.showHorseList}">
         <div class="mb-4 flex justify-end space-x-4">
           <button
             class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
@@ -64,32 +63,44 @@ const toggleHorseList = () => {
           >
             GENERATE PROGRAM
           </button>
-          <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">
-            START / PAUSE
+          <button
+            class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
+            @click="toggleRace"
+          >
+            {{ raceStore.isRacing ? 'PAUSE' : 'START' }}
           </button>
         </div>
 
-        <div class="h-[90%] bg-gray-200 mb-4 flex items-center justify-center border-2 border-gray-400">
-          <p class="text-gray-500 text-xl">Race Track (Visualization will appear here)</p>
+        <div class="h-[90%] bg-gray-200 mb-4 overflow-hidden">
+          <RaceTrack
+            v-if="raceStore.programHorses.length > 0"
+            :horses="raceStore.programHorses"
+            :is-racing="raceStore.isRacing"
+            :race-distance="1200"
+            @race-completed="handleRaceCompleted"
+          />
+          <div v-else class="h-full flex items-center justify-center border-2 border-gray-400">
+            <p class="text-gray-500 text-xl">Generate a program to start the race</p>
+          </div>
         </div>
       </div>
 
-      <div class="md:w-2/3 bg-gray-100 rounded-lg shadow p-4" :class="{'md:w-1/3': !showHorseList}">
+      <div class="md:w-2/3 bg-gray-100 rounded-lg shadow p-4" :class="{'md:w-1/3': !raceStore.showHorseList}">
         <div class="h-full">
           <div class="rounded shadow h-1/2">
             <HorseTable
-              :horses="programHorses"
+              :horses="raceStore.programHorses"
               title="Program"
             />
-            <div v-if="programHorses.length === 0" class="flex items-center justify-center h-full bg-white">
+            <div v-if="raceStore.programHorses.length === 0" class="flex items-center justify-center h-full bg-white">
               <p class="text-gray-500">Click "GENERATE PROGRAM" to start</p>
             </div>
           </div>
 
           <div class="rounded shadow h-1/2">
             <HorseTable
-              v-if="resultsHorses.length > 0"
-              :horses="resultsHorses"
+              v-if="raceStore.resultsHorses.length > 0"
+              :horses="raceStore.resultsHorses"
               title="Results"
             />
             <div v-else class="flex items-center justify-center h-full bg-white">

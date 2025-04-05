@@ -1,8 +1,5 @@
 <script setup>
-import { ref } from 'vue'
 import { HORSES } from '@/constants/horses'
-
-const horses = ref(HORSES)
 
 const getPerformanceColor = (condition) => {
   if (condition >= 85) return 'text-green-600'
@@ -33,7 +30,7 @@ const getPerformanceArrow = (condition) => {
 
         <tbody>
           <tr
-            v-for="horse in horses"
+            v-for="horse in HORSES"
             :key="horse.id"
             class="cursor-pointer bg-opacity-20"
             :class="`${horse.color}`"
