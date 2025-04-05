@@ -267,9 +267,9 @@ const getLapDistanceText = () => {
 }
 
 // Format luck factor for display
-const formatLuckFactor = (luckFactor) => {
-  return luckFactor.toFixed(2)
-}
+// const formatLuckFactor = (luckFactor) => {
+//   return luckFactor.toFixed(2)
+// }
 </script>
 
 <template>
@@ -284,7 +284,7 @@ const formatLuckFactor = (luckFactor) => {
       <!-- Track lanes -->
       <div
         ref="trackElement"
-        class="race-track relative w-full h-full overflow-hidden"
+        class="h-[25rem] race-track relative w-full md:h-full overflow-hidden"
       >
         <!-- Lane markers -->
         <div class="absolute left-0 bottom-0 top-0 w-1 bg-white z-10"></div>
@@ -340,7 +340,7 @@ const formatLuckFactor = (luckFactor) => {
           <div class="relative">
             <!-- Horse color indicator -->
             <div
-              class="absolute left-2 top-0 w-8 h-8 rounded-full border-2 border-white"
+              class="absolute left-12 top-0 w-8 h-8 rounded-full border-2 border-white"
               :class="horse.color"
             >
               <span class="absolute inset-0 flex items-center justify-center text-xs font-bold" :class="horse.textColor">
@@ -349,7 +349,7 @@ const formatLuckFactor = (luckFactor) => {
             </div>
 
             <!-- Luck factor indicator -->
-            <div
+            <!-- <div
               v-if="horseLuckFactors[horse.id]"
               class="absolute left-10 top-1 text-xs px-1 py-0.5 rounded bg-white text-black font-bold"
               :class="{
@@ -359,17 +359,10 @@ const formatLuckFactor = (luckFactor) => {
               }"
             >
               x{{ formatLuckFactor(horseLuckFactors[horse.id]) }}
-            </div>
+            </div> -->
 
             <!-- Horse silhouette -->
-            <svg
-              width="40"
-              height="20"
-              viewBox="0 0 40 20"
-              class="fill-black"
-            >
-              <path d="M39,10c-0.6-0.4-2.2-1.3-4.2-1.5L30,8c0,0-5.8-0.8-9-3c0,0-1.2,1-4,1s-7-1-7-1L2.8,5.5C1.5,6.4,1,7.8,1,9v1h2c0,0,1.5,0,1.5,2S3,14,3,14H1c0,0,0,2.5,2,3s3.3,0.2,6-1s9-1,9-1s0,0,3,1s8-2,8-2s7.5-3.8,10-4Z"/>
-            </svg>
+             <img src="@/assets/horse.png" alt="" class="w-10 h-10">
           </div>
         </div>
       </div>
