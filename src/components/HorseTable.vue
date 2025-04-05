@@ -13,6 +13,10 @@ defineProps({
   resultMode: {
     type: Boolean,
     default: false
+  },
+  scheduleMode: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -37,7 +41,7 @@ const getLuckColor = (luckFactor) => {
 
 <template>
   <div class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="bg-blue-100 py-2 px-4">
+    <div v-if="!resultMode && !scheduleMode" class="bg-blue-100 py-2 px-4">
       <h3 class="text-lg font-bold text-center">{{ title }}</h3>
     </div>
 

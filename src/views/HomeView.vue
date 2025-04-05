@@ -123,44 +123,46 @@ const viewNextProgramRound = () => {
         </button>
       </div>
 
-      <div class="md:w-2/3 bg-gray-100 rounded-lg shadow p-4" :class="{'md:w-2/3': !raceStore.showHorseList}">
-        <!-- Top control buttons -->
-        <div class="mb-4 flex justify-between items-center">
-          <div class="text-xl font-bold text-gray-700">
-            {{ raceStore.currentRoundName }} ({{ raceStore.currentRaceDistance }}m)
-            <span v-if="raceStore.raceCompleted" class="text-sm text-green-600 ml-2">
-              All Rounds Complete!
-            </span>
+      <div class="md:w-2/3 bg-gray-100 rounded-lg shadow p-4 h-full" :class="{'md:w-2/3': !raceStore.showHorseList}">
+        <div class="flex flex-col h-full">
+          <!-- Top control buttons -->
+          <div class="mb-4 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-700">
+              {{ raceStore.currentRoundName }} ({{ raceStore.currentRaceDistance }}m)
+              <span v-if="raceStore.raceCompleted" class="text-sm text-green-600 ml-2">
+                All Rounds Complete!
+              </span>
+            </div>
+
+            <div class="flex space-x-4">
+              <button
+                class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                @click="generateProgram"
+              >
+                NEW PROGRAM
+              </button>
+              <button
+                class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
+                @click="startRace"
+                :disabled="raceStore.isRacing || raceStore.raceCompleted"
+                :class="{ 'opacity-50 cursor-not-allowed': raceStore.isRacing || raceStore.raceCompleted }"
+              >
+                START RACE
+              </button>
+            </div>
           </div>
 
-          <div class="flex space-x-4">
-            <button
-              class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-              @click="generateProgram"
-            >
-              NEW PROGRAM
-            </button>
-            <button
-              class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
-              @click="startRace"
-              :disabled="raceStore.isRacing || raceStore.raceCompleted"
-              :class="{ 'opacity-50 cursor-not-allowed': raceStore.isRacing || raceStore.raceCompleted }"
-            >
-              START RACE
-            </button>
-          </div>
-        </div>
-
-        <div class="h-[80%] bg-gray-200 mb-4 overflow-hidden">
-          <RaceTrack
-            v-if="raceStore.programHorses.length > 0"
-            :horses="raceStore.programHorses"
-            :is-racing="raceStore.isRacing"
-            :race-distance="raceStore.currentRaceDistance"
-            @race-completed="handleRaceCompleted"
-          />
-          <div v-else class="h-full flex items-center justify-center border-2 border-gray-400">
-            <p class="text-gray-500 text-xl">Generate a program to start the race</p>
+          <div class="bg-gray-200 mb-4 overflow-hidden h-full">
+            <RaceTrack
+              v-if="raceStore.programHorses.length > 0"
+              :horses="raceStore.programHorses"
+              :is-racing="raceStore.isRacing"
+              :race-distance="raceStore.currentRaceDistance"
+              @race-completed="handleRaceCompleted"
+            />
+            <div v-else class="h-full flex items-center justify-center border-2 border-gray-400">
+              <p class="text-gray-500 text-xl">Generate a program to start the race</p>
+            </div>
           </div>
         </div>
       </div>
@@ -308,6 +310,7 @@ const viewNextProgramRound = () => {
                     v-if="selectedProgram"
                     :horses="selectedProgram.horses"
                     :title="`Round ${selectedProgramRound} (${selectedProgram.distance}m)`"
+                    :schedule-mode="true"
                   />
                   <div v-else class="flex items-center justify-center h-full bg-white">
                     <p class="text-gray-500">Generate a program to see the schedule</p>
