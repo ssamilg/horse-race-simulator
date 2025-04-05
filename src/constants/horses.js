@@ -14,7 +14,7 @@ export const HORSES = [
   {
     id: 2,
     name: 'Metin Tekin',
-    color: 'bg-gray-800',
+    color: 'bg-gray-500',
     textColor: 'text-white',
     condition: 90
   },
@@ -28,7 +28,7 @@ export const HORSES = [
   {
     id: 4,
     name: 'Ali Gültiken',
-    color: 'bg-gray-400',
+    color: 'bg-emerald-500',
     textColor: 'text-black',
     condition: 85
   },
