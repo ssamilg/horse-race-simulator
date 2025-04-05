@@ -72,8 +72,15 @@ export const useRaceStore = defineStore('race', () => {
     showHorseList.value = !showHorseList.value
   }
 
-  function toggleRacing() {
-    isRacing.value = !isRacing.value
+  function toggleRacing(forceStart = false) {
+    // If forcing to start, only start if not already racing
+    if (forceStart) {
+      if (!isRacing.value && !raceCompleted.value) {
+        isRacing.value = true
+      }
+    } else {
+      isRacing.value = !isRacing.value
+    }
   }
 
   function generateProgram() {
@@ -146,16 +153,6 @@ export const useRaceStore = defineStore('race', () => {
     }
   }
 
-  function resetRace() {
-    // Reset the current round only
-    resultsHorses.value = []
-    raceCompleted.value = false
-    isRacing.value = false
-
-    // Use the pre-generated horses for the current round
-    generateRoundHorses()
-  }
-
   // Get program horses for a specific round
   function getProgramForRound(roundNumber) {
     const roundIndex = roundNumber - 1
@@ -185,7 +182,6 @@ export const useRaceStore = defineStore('race', () => {
     toggleRacing,
     generateProgram,
     setRaceResults,
-    resetRace,
     advanceToNextRound,
     getProgramForRound
   }

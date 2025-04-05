@@ -52,18 +52,14 @@ const generateProgram = () => {
   selectedProgramRound.value = 1
 }
 
-const toggleRace = () => {
-  raceStore.toggleRacing()
+const startRace = () => {
+  raceStore.toggleRacing(true) // Force racing to start
 }
 
 const handleRaceCompleted = (results) => {
   raceStore.setRaceResults(results)
   // Set selected round to the one just completed
   selectedRoundIndex.value = raceStore.roundResults.length - 1
-}
-
-const resetCurrentRound = () => {
-  raceStore.resetRace()
 }
 
 const viewPreviousRound = () => {
@@ -145,20 +141,12 @@ const viewNextProgramRound = () => {
               NEW PROGRAM
             </button>
             <button
-              class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded"
-              @click="resetCurrentRound"
-              :disabled="raceStore.isRacing"
-              :class="{ 'opacity-50 cursor-not-allowed': raceStore.isRacing }"
-            >
-              RESET ROUND
-            </button>
-            <button
               class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
-              @click="toggleRace"
-              :disabled="raceStore.raceCompleted"
-              :class="{ 'opacity-50 cursor-not-allowed': raceStore.raceCompleted }"
+              @click="startRace"
+              :disabled="raceStore.isRacing || raceStore.raceCompleted"
+              :class="{ 'opacity-50 cursor-not-allowed': raceStore.isRacing || raceStore.raceCompleted }"
             >
-              {{ raceStore.isRacing ? 'PAUSE' : 'START' }}
+              START RACE
             </button>
           </div>
         </div>
