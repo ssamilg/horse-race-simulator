@@ -9,6 +9,8 @@ export const useRaceStore = defineStore('race', () => {
   // UI State
   const showHorseList = ref(true)
   const isRacing = ref(false)
+  const activeTab = ref('results')
+  const selectedRoundIndex = ref(0)
 
   // Race State
   const programHorses = ref([])
@@ -93,6 +95,10 @@ export const useRaceStore = defineStore('race', () => {
     raceCompleted.value = false
     isRacing.value = false
 
+    // Reset UI state
+    activeTab.value = 'results'
+    selectedRoundIndex.value = 0
+
     // Generate programs for all 6 rounds
     for (let i = 0; i < RACE_DISTANCES.length; i++) {
       const shuffled = [...HORSES].sort(() => 0.5 - Math.random())
@@ -130,6 +136,10 @@ export const useRaceStore = defineStore('race', () => {
       distance: currentRaceDistance.value,
       results: [...results]
     })
+
+    // Set the active tab to results and select the current round
+    activeTab.value = 'results'
+    selectedRoundIndex.value = roundResults.value.length - 1
 
     // Advance to the next round
     advanceToNextRound()
@@ -176,6 +186,8 @@ export const useRaceStore = defineStore('race', () => {
     trackWidthPercent,
     currentRoundName,
     championshipStandings,
+    activeTab,
+    selectedRoundIndex,
 
     // Actions
     toggleHorseList,

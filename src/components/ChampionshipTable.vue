@@ -29,8 +29,8 @@ defineProps({
           <tr
             v-for="(horse, index) in standings"
             :key="horse.id"
-            class="hover:bg-gray-50 border-b"
-            :class="{ 'bg-yellow-50': index === 0, 'bg-gray-50': index === 1, 'bg-amber-50': index === 2 }"
+            class="border-b"
+            :class="{ 'bg-yellow-100': index === 0, 'bg-gray-200': index === 1, 'bg-orange-100': index === 2 }"
           >
             <td class="py-2 px-2 text-center font-bold">
               {{ index + 1 }}
