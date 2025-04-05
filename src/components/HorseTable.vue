@@ -9,6 +9,10 @@ defineProps({
   title: {
     type: String,
     default: 'Horse Table'
+  },
+  resultMode: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -23,6 +27,12 @@ const getPerformanceArrow = (condition) => {
   if (condition >= 70) return '→'
   return '↓'
 }
+
+const getLuckColor = (luckFactor) => {
+  if (luckFactor > 1.2) return 'text-green-600'
+  if (luckFactor > 0.9) return 'text-amber-500'
+  return 'text-red-600'
+}
 </script>
 
 <template>
@@ -31,7 +41,7 @@ const getPerformanceArrow = (condition) => {
       <h3 class="text-lg font-bold text-center">{{ title }}</h3>
     </div>
 
-    <div class="overflow-y-auto max-h-[250px]">
+    <div class="overflow-y-auto">
       <table class="min-w-full">
         <thead class="bg-gray-800 text-white sticky top-0">
           <tr>
@@ -39,6 +49,7 @@ const getPerformanceArrow = (condition) => {
             <th class="py-2 px-2 text-left">Horse</th>
             <th class="py-2 px-2 text-center w-12">ID</th>
             <th class="py-2 px-2 text-center w-20">Condition</th>
+            <th v-if="resultMode" class="py-2 px-2 text-center w-20">Luck</th>
           </tr>
         </thead>
         <tbody>
@@ -48,7 +59,7 @@ const getPerformanceArrow = (condition) => {
             class="hover:bg-gray-50 border-b"
           >
             <td class="py-2 px-2 text-center font-bold">
-              {{ index + 1 }}
+              {{ resultMode && horse.position ? horse.position : index + 1 }}
             </td>
             <td class="py-2 px-2 font-medium">
               {{ horse.name }}
@@ -67,6 +78,13 @@ const getPerformanceArrow = (condition) => {
                   :class="getPerformanceColor(horse.condition)"
                 >
                   {{ getPerformanceArrow(horse.condition) }}
+                </span>
+              </div>
+            </td>
+            <td v-if="resultMode && horse.luckFactor" class="py-2 px-2 text-center">
+              <div class="flex items-center justify-center space-x-1">
+                <span :class="getLuckColor(horse.luckFactor)" class="font-bold">
+                  x{{ horse.luckFactor }}
                 </span>
               </div>
             </td>
