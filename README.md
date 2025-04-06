@@ -3,6 +3,8 @@
 A dynamic, interactive Vue.js application that simulates horse racing with realistic mechanics and a comprehensive championship system.
 
 > **Note:** This project was created by me, with coding assistance from Cursor IDE. [Learn more about this approach](#-development-assistance).
+>
+> I have many ideas for future enhancements to this project, but as this was primarily a technical exercise rather than a passion project, I'm sharing these ideas instead of implementing them. [Check out potential improvements](#-future-improvements).
 
 ## 🌐 Live Demo
 
@@ -151,6 +153,52 @@ The application is fully responsive and adapts to different screen sizes:
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome!
+
+## 💭 Future Improvements
+
+While I'm satisfied with the current version of this horse racing simulator, there are numerous exciting enhancements that could be implemented. I've prioritized these ideas in order of importance but don't plan to spend additional time on this project at the moment:
+
+### 1. Enhanced Visual Design & User Experience
+
+The current layout is functional but lacks visual character. Key improvements could include:
+- Developing a distinctive visual identity with cohesive color schemes, custom typography, and a memorable logo
+- Creating a proper navigation bar for more intuitive movement through the application
+- Implementing an instruction modal that greets first-time users, providing context and a warmer introduction to the simulation mechanics
+- Adding detailed tooltips to the race track that display comprehensive horse data (name, current position, luck factor, condition) during races
+
+### 2. Improved Horse Mechanics & Depth
+
+The current simulation could be enhanced with more sophisticated racing mechanics:
+- Implementing dynamic condition ratings where horses' conditions evolve organically based on race performance - successful horses would see condition improvements while underperforming horses would experience deterioration
+- Adding a stamina system that affects horses differently depending on race distance, creating strategic considerations for different races
+- Including precise timing information in race results to provide more granular performance metrics
+- Developing horse-specific characteristics that influence performance on different track conditions
+
+### 3. Betting System & User Engagement
+
+A betting mechanic would add significant depth to the user experience:
+- Allowing users to place wagers on horses based on their historical performance data
+- Implementing a virtual currency system with odds calculations reflecting horse conditions and past performance
+- Creating detailed horse profile pages showing comprehensive race history to inform betting decisions
+- Adding visual celebrations and notifications for successful bets
+
+### 4. Customization & Control
+
+Greater user control would enhance replay value:
+- Enabling users to create and save custom race schedules rather than relying on random generation
+- Allowing custom horse creation with user-defined attributes (name, color, condition, stamina)
+- Implementing save/load functionality for race configurations and championship progress
+- Adding options to adjust race parameters (distance, track conditions)
+
+### 5. Architectural Improvements
+
+The single-page approach could be expanded for a more comprehensive experience:
+- Transitioning to a multi-page architecture using Vue Router for dedicated sections
+- Creating separate focused pages for horses, betting interface, race viewing, and results
+- Implementing a more narrative-driven simulation experience with clear pre-race, race, and post-race phases
+- Developing a user profile system to track betting history and favorite horses
+
+These enhancements would transform the current simulator into an even more engaging and comprehensive horse racing experience, but they remain beyond the scope of my current timeline for this project.
 
 ## 🤖 Development Assistance
 
