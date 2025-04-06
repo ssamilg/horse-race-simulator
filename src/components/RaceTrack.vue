@@ -2,21 +2,6 @@
 import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useRaceStore } from '@/stores/raceStore'
 
-const props = defineProps({
-  horses: {
-    type: Array,
-    required: true
-  },
-  isRacing: {
-    type: Boolean,
-    default: false
-  },
-  raceDistance: {
-    type: Number,
-    default: 1200 // meters
-  }
-})
-
 const raceStore = useRaceStore()
 const trackWidth = ref(0)
 const trackHeight = ref(0)
@@ -25,11 +10,16 @@ const raceCompleted = ref(false)
 const horsePositions = ref({}) // Store position data by horse ID
 const horseLuckFactors = ref({}) // Store luck factors for each horse
 
+// Use store values directly
+const horses = computed(() => raceStore.programHorses)
+const isRacing = computed(() => raceStore.isRacing)
+const raceDistance = computed(() => raceStore.currentRaceDistance)
+
 // Calculate lane height based on track height and number of horses
 const laneHeight = computed(() => {
-  if (!trackHeight.value || props.horses.length === 0) return 40
+  if (!trackHeight.value || horses.value.length === 0) return 40
   // Subtract some padding to ensure lanes fit within track
-  return Math.floor(trackHeight.value / props.horses.length)
+  return Math.floor(trackHeight.value / horses.value.length)
 })
 
 // Calculate finish line position from the left edge based on track width
@@ -47,7 +37,7 @@ const initializePositions = () => {
   const positions = {}
   const luckFactors = {}
 
-  props.horses.forEach((horse, index) => {
+  horses.value.forEach((horse, index) => {
     positions[horse.id] = {
       distance: 0,
       position: 0,
@@ -62,7 +52,7 @@ const initializePositions = () => {
 }
 
 // Watch for changes in the racing state
-watch(() => props.isRacing, (newValue) => {
+watch(() => isRacing.value, (newValue) => {
   if (newValue) {
     startRace()
   } else {
@@ -71,7 +61,7 @@ watch(() => props.isRacing, (newValue) => {
 })
 
 // Watch for changes in horses array
-watch(() => props.horses, () => {
+watch(() => horses.value, () => {
   initializePositions()
 }, { deep: true })
 
@@ -83,7 +73,7 @@ watch(() => raceStore.showHorseList, () => {
 })
 
 // Watch for changes in race distance to reset track
-watch(() => props.raceDistance, () => {
+watch(() => raceDistance.value, () => {
   // When race distance changes, we need to reset the track
   initializePositions()
   finishedHorseOrder.length = 0
@@ -163,12 +153,12 @@ const updateRacePositions = () => {
   let allFinished = true
 
   // Update each horse's position based on condition and luck factor
-  props.horses.forEach(horse => {
+  horses.value.forEach(horse => {
     const position = horsePositions.value[horse.id]
     if (!position) return
 
     // Skip if already finished
-    if (position.distance >= props.raceDistance) {
+    if (position.distance >= raceDistance.value) {
       return
     }
 
@@ -181,8 +171,8 @@ const updateRacePositions = () => {
     position.distance += metersPerSecond
 
     // Check if finished
-    if (position.distance >= props.raceDistance) {
-      position.distance = props.raceDistance
+    if (position.distance >= raceDistance.value) {
+      position.distance = raceDistance.value
 
       // Record the finish order
       finishedHorseOrder.push(horse.id)
@@ -226,7 +216,7 @@ const updateRacePositions = () => {
     const results = finishedHorseOrder
       .map((id, index) => {
         // Find the original horse object
-        const horse = props.horses.find(h => h.id.toString() === id.toString())
+        const horse = horses.value.find(h => h.id.toString() === id.toString())
         if (!horse) return null
 
         return {
@@ -250,7 +240,7 @@ const updateHorsePosition = (horseId) => {
   if (!horseElement) return
 
   // Calculate position percentage
-  const progressPercent = Math.min(100, (position.distance / props.raceDistance) * 100)
+  const progressPercent = Math.min(100, (position.distance / raceDistance.value) * 100)
 
   // Calculate left position based on progress percentage and track width
   const leftPosition = (progressPercent / 100) * finishLinePosition.value
@@ -263,7 +253,7 @@ const emit = defineEmits(['raceCompleted'])
 
 // Get lap distance text
 const getLapDistanceText = () => {
-  return `Race Distance: ${props.raceDistance}m`
+  return `Race Distance: ${raceDistance.value}m`
 }
 
 // Format luck factor for display
@@ -292,7 +282,7 @@ const getLapDistanceText = () => {
 
         <!-- Lane lines -->
         <div
-          v-for="horse in props.horses"
+          v-for="horse in horses"
           :key="'lane-' + horse.id"
           class="absolute left-0 right-0 h-[1px] bg-white opacity-30"
           :style="{top: `${getLanePosition(horsePositions[horse.id]?.laneNumber)}px`}"
@@ -316,7 +306,7 @@ const getLapDistanceText = () => {
 
         <!-- Position indicators -->
         <div
-          v-for="horse in props.horses"
+          v-for="horse in horses"
           :key="'pos-' + horse.id"
           class="absolute left-0 text-2xl w-12 text-white text-center text-bold opacity-50"
           :style="{top: `${getHorseVerticalPosition(horsePositions[horse.id]?.laneNumber)}px`}"
@@ -326,7 +316,7 @@ const getLapDistanceText = () => {
 
         <!-- Horses -->
         <div
-          v-for="horse in props.horses"
+          v-for="horse in horses"
           :key="horse.id"
           :id="`horse-${horse.id}`"
           class="absolute transition-all"

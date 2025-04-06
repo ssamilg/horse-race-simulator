@@ -99,9 +99,6 @@ const handleRaceCompleted = (results) => {
           <div class="bg-gray-200 mb-4 overflow-hidden h-full">
             <RaceTrack
               v-if="raceStore.programHorses.length > 0"
-              :horses="raceStore.programHorses"
-              :is-racing="raceStore.isRacing"
-              :race-distance="raceStore.currentRaceDistance"
               @race-completed="handleRaceCompleted"
             />
             <div v-else class="h-full flex items-center justify-center border-2 border-gray-400">
